@@ -52,6 +52,7 @@ function handleMessage(socket, data) {
         message = JSON.parse(data.toString());
     } catch {
         sendJson(socket, { type: 'error', message: 'Invalid JSON' });
+        return;
     }
 
     if (message?.type === 'subscribe' && Number.isInteger(message.matchId)) {
@@ -119,8 +120,6 @@ export function attachWebSocketServer(server){
         socket.on('close', () => {
             cleanupSubscribers(socket);
         })
-
-        socket.on('error', console.error);
     })
     const interval = setInterval(() => {
         wss.clients.forEach((ws) => {
