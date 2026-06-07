@@ -1,0 +1,87 @@
+.match-list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.list-header {
+  padding: 20px 16px 12px;
+  border-bottom: 1px solid #1e2433;
+  position: sticky;
+  top: 0;
+  background: #161b27;
+  z-index: 1;
+}
+
+.list-header h2 {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.list-empty {
+  padding: 32px 16px;
+  color: #475569;
+  font-size: 14px;
+  text-align: center;
+}
+
+.match-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border: none;
+  border-bottom: 1px solid #1e2433;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+  width: 100%;
+}
+
+.match-card:hover { background: #1a2035; }
+.match-card.selected { background: #1e2d4a; border-left: 3px solid #3b82f6; }
+
+.match-sport {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.match-teams {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 500;
+  color: #cbd5e1;
+}
+
+.score {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e2e8f0;
+  background: #1e2433;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.status-badge {
+  align-self: flex-start;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
+  border-radius: 3px;
+}
+
+.status-badge.live    { background: #dc2626; color: #fff; }
+.status-badge.scheduled { background: #1e3a5f; color: #93c5fd; }
+.status-badge.finished  { background: #1e2433; color: #64748b; }

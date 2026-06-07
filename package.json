@@ -8,7 +8,8 @@
     "dev": "node --watch src/index.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:demo": "node src/db-demo.js"
+    "db:demo": "node src/db-demo.js",
+    "seed": "node src/seed/seed.js"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +22,7 @@
     "@arcjet/inspect": "^1.4.0",
     "@arcjet/node": "^1.4.0",
     "apminsight": "^5.4.0",
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
@@ -29,6 +31,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "drizzle-kit": "^0.31.10"
   }
 }
