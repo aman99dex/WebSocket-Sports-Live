@@ -1,4 +1,5 @@
-import {WebSocket, WebSocketServer} from 'ws';
+ import {WebSocket, WebSocketServer} from 'ws';
+import { wsArcjet } from '../arcjet.js';
 
 function sendJson(socket, payload) {
     if (socket.readyState !== WebSocket.OPEN) return;
@@ -14,12 +15,52 @@ function broadcast(wss,payload){
 
 export function attachWebSocketServer(server){
     const wss = new WebSocketServer({
-        server, path: '/ws', maxPayload : 1024*1024,
+        noServer: true, maxPayload : 1024*1024,
     })
+
+    wss.on('close', () => clearInterval(interval));
+
+    server.on('upgrade', async (req, socket, head) => {
+        if (req.url !== '/ws') {
+            socket.destroy();
+            return;
+        }
+
+        try {
+            const decision = await wsArcjet.protect(req);
+
+            if (decision.isDenied()) {
+                const status = decision.reason.isRateLimit() ? '429 Too Many Requests' : '403 Forbidden';
+                socket.write(`HTTP/1.1 ${status}\r\n\r\n`);
+                socket.destroy();
+                return;
+            }
+        } catch (e) {
+            console.error('WS upgrade security error', e);
+            socket.write('HTTP/1.1 503 Service Unavailable\r\n\r\n');
+            socket.destroy();
+            return;
+        }
+
+        wss.handleUpgrade(req, socket, head, (ws) => {
+            wss.emit('connection', ws, req);
+        });
+    });
+
     wss.on('connection', (socket) => {
+        socket.isAlive = true;
+        socket.on('pong', () => { socket.isAlive = true; });
+
         sendJson(socket, {type : 'welcome'});
-        socket.on('error',console.error);
+        socket.on('error', console.error);
     })
+    const interval = setInterval(() => {
+        wss.clients.forEach((ws) => {
+            if (ws.isAlive === false) return ws.terminate();
+            ws.isAlive = false;
+            ws.ping();
+        });
+    }, 30_000);
 
     function broadcastMatchCreated(match){
         broadcast(wss,{type : 'match_created', data : match});
