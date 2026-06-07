@@ -1,9 +1,9 @@
 import {Router} from 'express';
-import {createMatchSchema, listMatchesQuerySchema} from "../validation/matches.js";
+import {createMatchSchema, listMatchesQuerySchema, matchIdParamSchema, updateScoreSchema} from "../validation/matches.js";
 import {matches} from "../db/schema.js";
 import {db} from "../db/db.js";
 import {getMatchStatus} from "../utils/match-status.js";
-import {desc} from "drizzle-orm";
+import {desc, eq} from "drizzle-orm";
 
 const MAX_LIMIT = 100;
 
@@ -55,4 +55,32 @@ matchRouter.post('/', async (req, res) => {
         return res.status(500).json({error: 'Failed to create match', details: JSON.stringify(e)});
     }
 
+})
+
+matchRouter.patch('/:id/score', async (req, res) => {
+    const parsedParams = matchIdParamSchema.safeParse(req.params);
+    if (!parsedParams.success) {
+        return res.status(400).json({ error: 'Invalid match id', details: parsedParams.error.issues });
+    }
+
+    const parsedBody = updateScoreSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+        return res.status(400).json({ error: 'Invalid payload', details: parsedBody.error.issues });
+    }
+
+    try {
+        const [updated] = await db
+            .update(matches)
+            .set(parsedBody.data)
+            .where(eq(matches.id, parsedParams.data.id))
+            .returning();
+
+        if (!updated) {
+            return res.status(404).json({ error: 'Match not found' });
+        }
+
+        res.status(200).json({ data: updated });
+    } catch (e) {
+        res.status(500).json({ error: 'Failed to update score', details: JSON.stringify(e) });
+    }
 })
